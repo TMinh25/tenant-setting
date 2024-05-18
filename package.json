@@ -1,0 +1,51 @@
+{
+  "name": "tenant-setting",
+  "version": "1.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --disable-host-check --port 4321",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "build:single-spa:tenant-setting": "ng build tenant-setting --configuration production",
+    "serve:single-spa:tenant-setting": "ng s --project tenant-setting --disable-host-check --port 4321 --live-reload false"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^16.2.0",
+    "@angular/common": "^16.2.0",
+    "@angular/compiler": "^16.2.0",
+    "@angular/core": "^16.2.0",
+    "@angular/forms": "^16.2.0",
+    "@angular/localize": "^16.2.12",
+    "@angular/platform-browser": "^16.2.0",
+    "@angular/platform-browser-dynamic": "^16.2.0",
+    "@angular/router": "^16.2.0",
+    "@fpt-is/flx-ui": "file:../front-end/dist/npm/flx-ui",
+    "@fpt-is/sdk-common": "file:../front-end/dist/npm/sdk-common",
+    "@fpt-is/workflow-service": "file:../front-end/dist/npm/service/workflow-service",
+    "ngx-color-picker": "^16.0.0",
+    "rxjs": "~7.8.0",
+    "single-spa": ">=4.0.0",
+    "single-spa-angular": "^9.0.1",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.13.0"
+  },
+  "devDependencies": {
+    "@angular-builders/custom-webpack": "16.0.1",
+    "@angular-devkit/build-angular": "^16.2.5",
+    "@angular/cdk": "^16.2.8",
+    "@angular/cli": "^16.2.5",
+    "@angular/compiler-cli": "^16.2.0",
+    "@types/jasmine": "~4.3.0",
+    "jasmine-core": "~4.6.0",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.1.0",
+    "karma-jasmine-html-reporter": "~2.1.0",
+    "style-loader": "^3.3.1",
+    "systemjs-webpack-interop": "^2.3.7",
+    "typescript": "~5.1.3"
+  }
+}

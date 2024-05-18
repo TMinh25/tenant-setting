@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+  },
+  "exclude": [
+    "./**/*"
+  ],
+  "include": []
+}

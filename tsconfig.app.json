@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/app",
+    "types": ["@angular/localize"],
+    "paths": {
+      "@angular/*": ["./node_modules/@angular/*"],
+      "rxjs/*": ["./node_modules/rxjs/*"],
+      "@fpt-is/flx-ui/*" : ["./node_modules/@fpt-is/flx-ui/*"]
+    }
+  },
+  "files": [
+    "src/main.single-spa.ts"
+  ],
+  "include": [
+    "src/**/*.d.ts"
+  ]
+}
