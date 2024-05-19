@@ -21,6 +21,7 @@
               "systemjs-webpack-interop",
               "dragula",
               "lodash",
+              "jsoneditor"
             ],
             "outputPath": "dist/tenant-setting",
             "index": "src/index.html",

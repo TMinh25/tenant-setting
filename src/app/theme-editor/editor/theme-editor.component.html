@@ -1,61 +1,128 @@
 <div class="header-container">
-  <flx-breadcrumb [breadcrumbs]="breadcrumbs" class="breadcrumb-container"></flx-breadcrumb>
+  <flx-breadcrumb
+    [breadcrumbs]="breadcrumbs"
+    class="breadcrumb-container"
+  ></flx-breadcrumb>
   <div class="action-button-group">
     <button flxButton status="default" (click)="resetTheme()">Reset</button>
     <button flxButton status="default" (click)="previewTheme()">Preview</button>
-    <button flxButton status="primary" (click)="saveTheme()" [flxSubmit]="tenantThemeSettingData">Save</button>
+    <button flxButton status="primary" (click)="saveTheme()">Save</button>
   </div>
 </div>
 
-<flx-form [(ngModel)]="tenantThemeSettingData" #themeEditorForm>
-  <div class="tenant-theme-editor-container">
-    <div class="theme-color-picker-container">
-      <div class="primary-color-picker-container">
-        <label class="color-picker-label">Primary color</label>
-        <div class="color-picker-radio">
-          <div flxFormFieldRadio name="primaryColor" label="" [isColorRadio]="true"
-            [dataSource]="primaryColorSettingDataSource" [marginSize]="0" [inline]="true">
+<div class="tenant-theme-editor-container">
+  <flx-form [(ngModel)]="tenantGeneralSetting" #themeEditorForm>
+    <div class="form-container">
+      <div class="theme-color-picker-container">
+        <div class="color-picker-container">
+          <label class="general-setting-label">Primary color</label>
+          <div class="color-picker-radio">
+            <div
+              flxFormFieldRadio
+              name="primaryColor"
+              class="color-picker-input"
+              label=""
+              [isColorRadio]="true"
+              [dataSource]="primaryColorSettingDataSource"
+              [marginSize]="0"
+              [inline]="true"
+            ></div>
+            <div class="color-picker-button-container">
+              <div class="color-picker-button-parent">
+                <input
+                  class="color-picker-button"
+                  [(colorPicker)]="tenantGeneralSetting.primaryColor"
+                  (cpInputChange)="handleColorChanged('primaryColor', $event)"
+                />
+                <img
+                  src="assets/icon/edit-highlight.svg"
+                  class="color-picker-icon"
+                />
+              </div>
+            </div>
           </div>
-          <div class="color-picker-button-container">
-            <div class="color-picker-button-parent">
-              <input class="color-picker-button" [(colorPicker)]="tenantThemeSettingData.primaryColor"
-                (cpInputChange)="handleColorChanged('primaryColor', $event)" />
-              <img src="assets/icon/edit-highlight.svg" class="color-picker-icon" />
+        </div>
+        <div class="color-picker-container">
+          <label class="general-setting-label">Heading background</label>
+          <div class="color-picker-radio">
+            <div
+              flxFormFieldRadio
+              name="headingBackground"
+              class="color-picker-input"
+              label=""
+              [isColorRadio]="true"
+              [dataSource]="headingBackgroundSettingDataSource"
+              [marginSize]="0"
+              [inline]="true"
+            ></div>
+            <div class="color-picker-button-container">
+              <div class="color-picker-button-parent">
+                <input
+                  class="color-picker-button"
+                  [(colorPicker)]="tenantGeneralSetting.headingBackground"
+                  (cpInputChange)="
+                    handleColorChanged('headingBackground', $event)
+                  "
+                />
+                <img
+                  src="assets/icon/edit-highlight.svg"
+                  class="color-picker-icon"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="color-picker-container">
+          <label class="general-setting-label">Leftmenu background</label>
+          <div class="color-picker-radio">
+            <div
+              flxFormFieldRadio
+              name="leftMenuBackground"
+              class="color-picker-input"
+              label=""
+              [isColorRadio]="true"
+              [dataSource]="leftMenuBackgroundSettingDataSource"
+              [marginSize]="0"
+              [inline]="true"
+            ></div>
+            <div class="color-picker-button-container">
+              <div class="color-picker-button-parent">
+                <input
+                  class="color-picker-button"
+                  [(colorPicker)]="tenantGeneralSetting.leftMenuBackground"
+                  (cpInputChange)="
+                    handleColorChanged('leftMenuBackground', $event)
+                  "
+                />
+                <img
+                  src="assets/icon/edit-highlight.svg"
+                  class="color-picker-icon"
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="heading-color-picker-container">
-        <label class="color-picker-label">Heading background</label>
-        <div class="color-picker-radio">
-          <div flxFormFieldRadio name="headingBackground" label="" [isColorRadio]="true"
-            [dataSource]="headingBackgroundSettingDataSource" [marginSize]="0" [inline]="true">
-          </div>
-          <div class="color-picker-button-container">
-            <div class="color-picker-button-parent">
-              <input class="color-picker-button" [(colorPicker)]="tenantThemeSettingData.headingBackground"
-                (cpInputChange)="handleColorChanged('headingBackground', $event)" />
-              <img src="assets/icon/edit-highlight.svg" class="color-picker-icon" />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="left-menu-color-picker-container">
-        <label class="color-picker-label">Leftmenu background</label>
-        <div class="color-picker-radio">
-          <div flxFormFieldRadio name="leftmenuBackground" label="" [isColorRadio]="true"
-            [dataSource]="leftmenuBackgroundSettingDataSource" [marginSize]="0" [inline]="true">
-          </div>
-          <div class="color-picker-button-container">
-            <div class="color-picker-button-parent">
-              <input class="color-picker-button" [(colorPicker)]="tenantThemeSettingData.leftmenuBackground"
-                (cpInputChange)="handleColorChanged('leftmenuBackground', $event)" />
-              <img src="assets/icon/edit-highlight.svg" class="color-picker-icon" />
-            </div>
-          </div>
-        </div>
+      <div class="theme-skin-picker-container">
+        <label class="general-setting-label">Upload logo</label>
+        <div
+          flxFormFieldFile
+          name="logoURL"
+          [upload]="uploadAttachmentFile"
+          [multiple]="false"
+          [accept]="['image/png', 'image/jpeg']"
+        ></div>
+        <label class="general-setting-label">Border type</label>
+        <div
+          flxFormFieldRadio
+          name="borderType"
+          label=""
+          [isImageRadio]="true"
+          [dataSource]="borderTypeDataSource"
+          [marginSize]="0"
+          [inline]="true"
+        ></div>
       </div>
     </div>
-    <div class="theme-skin-picker-container"></div>
-  </div>
-</flx-form>
+  </flx-form>
+</div>

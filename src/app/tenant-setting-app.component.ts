@@ -1,10 +1,11 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, Renderer2 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import {
   GroupNavigation,
   NavigationItem,
   NavigationService,
 } from '@fpt-is/sdk-common/navigation';
+import { TenantSettingService } from '@fpt-is/workflow-service';
 
 @Component({
   selector: 'tenant-setting-app-root',
@@ -13,12 +14,23 @@ import {
 export class TenantSettingAppComponent implements AfterViewInit {
   constructor(
     private titleService: Title,
-    private navigationService: NavigationService
+    private navigationService: NavigationService,
+    private renderer: Renderer2
   ) {
     const title = 'Process Configuration';
     this.titleService.setTitle(title);
     this.navigationService.setTitle(title);
   }
+
+  ngOnInit() {
+    TenantSettingService.readGeneralSetting().subscribe((setting) => {
+      document.documentElement.style.setProperty(
+        '--dynamic-primary',
+        setting.themeColor.primaryColor
+      );
+    });
+  }
+
   settings: NavigationItem[] = [];
 
   groupNavigation: GroupNavigation[] = [];

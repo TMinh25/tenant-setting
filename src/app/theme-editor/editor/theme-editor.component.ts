@@ -1,22 +1,45 @@
 import {
   Component,
   OnChanges,
+  OnDestroy,
   OnInit,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { BreadcrumbModel } from '@fpt-is/flx-ui/breadcrumb';
 import { FlxFormComponent, MessageValidator } from '@fpt-is/flx-ui/form-basic';
-import { of } from 'rxjs';
+import { Subject, map, of, takeUntil, tap } from 'rxjs';
 import { customRequiredValidator } from 'src/app/validator.utils';
+import {
+  TenantSettingService,
+  TenantGeneralSetting,
+  FlattenTenantGeneralSetting,
+  StorageService,
+} from '@fpt-is/workflow-service';
 
-const DEFAULT_COLORS = [
-  'default',
-  '#F79009',
-  '#E72E6E',
-  '#12B76A',
-  '#00BDD6',
-  'colorPicker',
+const DEFAULT_COLORS = ['default', '#F79009', '#E72E6E', '#12B76A', '#00BDD6'];
+const DEFAULT_TENANT_SETTING: FlattenTenantGeneralSetting = {
+  primaryColor: 'default',
+  headingBackground: 'default',
+  leftMenuBackground: 'default',
+  borderType: 'default',
+  logoURL: '',
+};
+const DEFAULT_BORDER_TYPE_OPTIONS: {
+  label: string;
+  image: string;
+  value: string;
+}[] = [
+  {
+    label: 'Default',
+    image: 'assets/icon/border-type-default.svg',
+    value: 'default',
+  },
+  {
+    label: 'Bordered',
+    image: 'assets/icon/border-type-bordered.svg',
+    value: 'bordered',
+  },
 ];
 
 @Component({
@@ -24,14 +47,27 @@ const DEFAULT_COLORS = [
   templateUrl: './theme-editor.component.html',
   styleUrls: ['./theme-editor.component.scss'],
 })
-export class ThemeEditorComponent implements OnChanges, OnInit {
+export class ThemeEditorComponent implements OnChanges, OnInit, OnDestroy {
   @ViewChild('themeEditorForm') form!: FlxFormComponent;
+  destroy$ = new Subject();
   ngOnInit(): void {
     this.colorSettingData = {
       primaryColor: [...DEFAULT_COLORS],
       headingBackground: [...DEFAULT_COLORS],
-      leftmenuBackground: [...DEFAULT_COLORS],
+      leftMenuBackground: [...DEFAULT_COLORS],
     };
+    this.initializeGeneralSetting();
+  }
+
+  initializeGeneralSetting(): void {
+    TenantSettingService.readGeneralSetting()
+      .pipe(
+        map((setting: TenantGeneralSetting) => {
+          this.tenantGeneralSetting = { ...setting, ...setting.themeColor };
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
   }
 
   customRequiredValidator = customRequiredValidator;
@@ -42,10 +78,10 @@ export class ThemeEditorComponent implements OnChanges, OnInit {
       icon: '/assets/icon/home.svg',
     },
     {
-      title: 'Workflow',
+      title: 'Advanced',
     },
     {
-      title: 'Process',
+      title: 'Theme Configuration',
     },
   ];
 
@@ -56,8 +92,10 @@ export class ThemeEditorComponent implements OnChanges, OnInit {
     },
   };
 
+  tenantGeneralSetting: FlattenTenantGeneralSetting = DEFAULT_TENANT_SETTING;
+
   messageValidator: MessageValidator = {
-    primaryColor: {
+    color: {
       required: this.VALIDATORS.REQUIRED.msg,
     },
   };
@@ -65,17 +103,7 @@ export class ThemeEditorComponent implements OnChanges, OnInit {
   colorSettingData: any = {
     primaryColor: [] as string[],
     headingBackground: [] as string[],
-    leftmenuBackground: [] as string[],
-  };
-
-  public primaryColorToggle: boolean = false;
-  public headingBackgroundToggle: boolean = false;
-  public leftmenuBackgroundToggle: boolean = false;
-
-  tenantThemeSettingData: any = {
-    primaryColor: 'default',
-    headingBackground: 'default',
-    leftmenuBackground: 'default',
+    leftMenuBackground: [] as string[],
   };
 
   optionMappingFunc(color: string) {
@@ -96,11 +124,18 @@ export class ThemeEditorComponent implements OnChanges, OnInit {
       of(this.colorSettingData.headingBackground.map(this.optionMappingFunc)),
   };
 
-  leftmenuBackgroundSettingDataSource = {
+  leftMenuBackgroundSettingDataSource = {
     optionValue: 'value',
     optionLabel: 'label',
     source: () =>
-      of(this.colorSettingData.leftmenuBackground.map(this.optionMappingFunc)),
+      of(this.colorSettingData.leftMenuBackground.map(this.optionMappingFunc)),
+  };
+
+  borderTypeDataSource: any = {
+    optionValue: 'value',
+    optionLabel: 'label',
+    optionImage: 'image',
+    source: () => of(DEFAULT_BORDER_TYPE_OPTIONS),
   };
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -111,41 +146,46 @@ export class ThemeEditorComponent implements OnChanges, OnInit {
     this.form.reactiveForm.patchValue({
       [field]: data,
     });
-
-    if (Array.isArray(this.colorSettingData[field])) {
-      this.colorSettingData[field].pop();
-      this.colorSettingData[field].push(data);
-    } else {
-      this.colorSettingData[field] = [data];
-    }
-
-    // switch (field) {
-    //   case 'primaryColor':
-    //     this.primaryColorSettingDataSource.source = () =>
-    //       of(this.colorSettingData.primaryColor.map(this.optionMappingFunc));
-    //     break;
-    //   case 'headingBackground':
-    //     this.headingBackgroundSettingDataSource.source = () =>
-    //       of(
-    //         this.colorSettingData.headingBackground.map(this.optionMappingFunc)
-    //       );
-    //     break;
-    //   case 'leftmenuBackground':
-    //     this.leftmenuBackgroundSettingDataSource.source = () =>
-    //       of(
-    //         this.colorSettingData.leftmenuBackground.map(this.optionMappingFunc)
-    //       );
-    //     break;
-
-    //   default:
-    //     break;
-    // }
   }
+
+  uploadAttachmentFile = (file: File) => {
+    return StorageService.uploadFile(file).pipe(
+      tap((logoURL: string) => this.form.reactiveForm.patchValue({ logoURL }))
+    );
+  };
 
   resetTheme() {
-
+    this.form.reactiveForm.setValue(DEFAULT_TENANT_SETTING);
+    console.log(this.tenantGeneralSetting);
   }
+
   previewTheme() {}
 
-  saveTheme()
+  saveTheme() {
+    const flattenTenantGeneralSetting = this.tenantGeneralSetting;
+    const tenantGeneralSetting: TenantGeneralSetting = {
+      ...flattenTenantGeneralSetting,
+      themeColor: {
+        ...flattenTenantGeneralSetting,
+      },
+    };
+    console.log(tenantGeneralSetting);
+    document.documentElement.style.setProperty(
+      '--dynamic-primary',
+      flattenTenantGeneralSetting.primaryColor
+    );
+    TenantSettingService.upsertGeneralSetting(tenantGeneralSetting)
+      .pipe(
+        map(
+          (setting: TenantGeneralSetting) =>
+            (this.tenantGeneralSetting = { ...setting, ...setting.themeColor })
+        )
+      )
+      .subscribe();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(true);
+    this.destroy$.complete();
+  }
 }

@@ -3,70 +3,91 @@
 $color-radio-input-button-size: 24px;
 $half-color-radio-input-button-size: 12px;
 $radio-input-default-button-color: $gray-400;
+$radio-input-margin: 0.1428rem;
 
 .header-container {
   height: 4rem;
   display: flex;
   background-color: white;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
   .breadcrumb-container {
+    display: flex;
+  }
+  .action-button-group {
     display: flex;
   }
 }
 
 .tenant-theme-editor-container {
-  display: flex;
   height: 100%;
   width: 100%;
-  padding: 1rem 2rem;
-  gap: 1rem;
+  padding: 1rem;
   .color-picker-radio {
     display: flex;
-  }
-  .theme-color-picker-container {
-    flex: 1;
-    background: white;
-    border-radius: 8px;
-    padding: 1rem;
-    & > div {
-      margin-bottom: 1rem;
+    .color-picker-input {
+      padding-right: calc(var(--bs-gutter-x) * 0.5);
+      flex: 0 0 auto;
     }
-    .color-picker-button-container {
-      flex: 2;
-      .color-picker-button-parent {
-        width: fit-content;
-        position: relative;
-        input.color-picker-button {
-          cursor: pointer;
-          caret-color: transparent;
-          height: $color-radio-input-button-size;
-          width: $color-radio-input-button-size;
-          border-radius: $color-radio-input-button-size;
-          border: none;
-          background: $gray-400;
+  }
+  .form-container {
+    display: flex;
+    gap: 1rem;
+
+    label {
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .theme-color-picker-container {
+      flex-grow: 1;
+      flex-basis: 200px;
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      & > div {
+        margin-bottom: 1rem;
+      }
+      .color-picker-container {
+        margin-top: 0;
+        margin-bottom: 24px;
+      }
+      .color-picker-button-container {
+        flex: 2;
+        .color-picker-button-parent {
+          width: fit-content;
           position: relative;
-          z-index: 1;
-        }
-        .color-picker-icon {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          z-index: 2;
-          pointer-events: none;
+          input.color-picker-button {
+            margin: $radio-input-margin;
+            cursor: pointer;
+            caret-color: transparent;
+            height: $color-radio-input-button-size;
+            width: $color-radio-input-button-size;
+            border-radius: $color-radio-input-button-size;
+            border: none;
+            background: $gray-400;
+            position: relative;
+            z-index: 1;
+          }
+          .color-picker-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            pointer-events: none;
+          }
         }
       }
     }
-    .primary-color-picker-container {
+    .theme-skin-picker-container {
+      flex-grow: 1;
+      flex-basis: 200px;
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
     }
-    .heading-color-picker-container {
-    }
-    .left-menu-color-picker-container {
-    }
-  }
-  .theme-skin-picker-container {
-    flex: 1;
-    background: white;
-    border-radius: 8px;
-    padding: 1rem;
   }
 }
