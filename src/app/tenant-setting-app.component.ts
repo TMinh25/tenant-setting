@@ -5,7 +5,6 @@ import {
   NavigationItem,
   NavigationService,
 } from '@fpt-is/sdk-common/navigation';
-import { TenantSettingService } from '@fpt-is/workflow-service';
 
 @Component({
   selector: 'tenant-setting-app-root',
@@ -20,15 +19,6 @@ export class TenantSettingAppComponent implements AfterViewInit {
     const title = 'Process Configuration';
     this.titleService.setTitle(title);
     this.navigationService.setTitle(title);
-  }
-
-  ngOnInit() {
-    TenantSettingService.readGeneralSetting().subscribe((setting) => {
-      document.documentElement.style.setProperty(
-        '--dynamic-primary',
-        setting.themeColor.primaryColor
-      );
-    });
   }
 
   settings: NavigationItem[] = [];

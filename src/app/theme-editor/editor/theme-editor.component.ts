@@ -17,12 +17,54 @@ import {
   StorageService,
 } from '@fpt-is/workflow-service';
 
-const DEFAULT_COLORS = ['default', '#F79009', '#E72E6E', '#12B76A', '#00BDD6'];
+function objectFlatter(obj: any) {
+  const result: any = {};
+
+  function recurse(currentObj: any) {
+    for (let key in currentObj) {
+      if (currentObj.hasOwnProperty(key)) {
+        if (
+          typeof currentObj[key] === 'object' &&
+          currentObj[key] !== null &&
+          !Array.isArray(currentObj[key])
+        ) {
+          recurse(currentObj[key]);
+        } else {
+          result[key] = currentObj[key];
+        }
+      }
+    }
+  }
+
+  recurse(obj);
+  return result;
+}
+
+function buildGeneralSetting(flattenSetting: FlattenTenantGeneralSetting) {
+  const { logoURL, borderType, primary, heading, menu } = flattenSetting;
+  return {
+    asset: {
+      logoURL,
+    },
+    theme: {
+      borderType,
+      color: {
+        primary,
+        background: {
+          heading,
+          menu,
+        },
+      },
+    },
+  } as TenantGeneralSetting;
+}
+
+const DEFAULT_COLORS = ['null', '#F79009', '#E72E6E', '#12B76A', '#00BDD6'];
 const DEFAULT_TENANT_SETTING: FlattenTenantGeneralSetting = {
-  primaryColor: 'default',
-  headingBackground: 'default',
-  leftMenuBackground: 'default',
-  borderType: 'default',
+  primary: 'null',
+  heading: 'null',
+  menu: 'null',
+  borderType: 'DEFAULT',
   logoURL: '',
 };
 const DEFAULT_BORDER_TYPE_OPTIONS: {
@@ -33,12 +75,12 @@ const DEFAULT_BORDER_TYPE_OPTIONS: {
   {
     label: 'Default',
     image: 'assets/icon/border-type-default.svg',
-    value: 'default',
+    value: 'DEFAULT',
   },
   {
     label: 'Bordered',
     image: 'assets/icon/border-type-bordered.svg',
-    value: 'bordered',
+    value: 'BORDERED',
   },
 ];
 
@@ -54,7 +96,7 @@ export class ThemeEditorComponent implements OnChanges, OnInit, OnDestroy {
     this.colorSettingData = {
       primaryColor: [...DEFAULT_COLORS],
       headingBackground: [...DEFAULT_COLORS],
-      leftMenuBackground: [...DEFAULT_COLORS],
+      menuBackground: [...DEFAULT_COLORS],
     };
     this.initializeGeneralSetting();
   }
@@ -63,7 +105,7 @@ export class ThemeEditorComponent implements OnChanges, OnInit, OnDestroy {
     TenantSettingService.readGeneralSetting()
       .pipe(
         map((setting: TenantGeneralSetting) => {
-          this.tenantGeneralSetting = { ...setting, ...setting.themeColor };
+          this.tenantGeneralSetting = objectFlatter(setting);
         }),
         takeUntil(this.destroy$)
       )
@@ -103,7 +145,7 @@ export class ThemeEditorComponent implements OnChanges, OnInit, OnDestroy {
   colorSettingData: any = {
     primaryColor: [] as string[],
     headingBackground: [] as string[],
-    leftMenuBackground: [] as string[],
+    menuBackground: [] as string[],
   };
 
   optionMappingFunc(color: string) {
@@ -124,11 +166,11 @@ export class ThemeEditorComponent implements OnChanges, OnInit, OnDestroy {
       of(this.colorSettingData.headingBackground.map(this.optionMappingFunc)),
   };
 
-  leftMenuBackgroundSettingDataSource = {
+  menuBackgroundSettingDataSource = {
     optionValue: 'value',
     optionLabel: 'label',
     source: () =>
-      of(this.colorSettingData.leftMenuBackground.map(this.optionMappingFunc)),
+      of(this.colorSettingData.menuBackground.map(this.optionMappingFunc)),
   };
 
   borderTypeDataSource: any = {
@@ -162,26 +204,20 @@ export class ThemeEditorComponent implements OnChanges, OnInit, OnDestroy {
   previewTheme() {}
 
   saveTheme() {
-    const flattenTenantGeneralSetting = this.tenantGeneralSetting;
-    const tenantGeneralSetting: TenantGeneralSetting = {
-      ...flattenTenantGeneralSetting,
-      themeColor: {
-        ...flattenTenantGeneralSetting,
-      },
-    };
-    console.log(tenantGeneralSetting);
-    document.documentElement.style.setProperty(
-      '--dynamic-primary',
-      flattenTenantGeneralSetting.primaryColor
-    );
+    const flattenSetting = this.tenantGeneralSetting;
+    const tenantGeneralSetting: TenantGeneralSetting =
+      buildGeneralSetting(flattenSetting);
     TenantSettingService.upsertGeneralSetting(tenantGeneralSetting)
       .pipe(
         map(
           (setting: TenantGeneralSetting) =>
-            (this.tenantGeneralSetting = { ...setting, ...setting.themeColor })
-        )
+            (this.tenantGeneralSetting = objectFlatter(setting))
+        ),
+        takeUntil(this.destroy$)
       )
-      .subscribe();
+      .subscribe(() => {
+        location.reload();
+      });
   }
 
   ngOnDestroy() {
